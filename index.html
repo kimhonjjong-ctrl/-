@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>커미션 가격 계산기</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: #111;
+    color: #eee;
+    font-family: Arial, "Noto Sans KR", sans-serif;
+    padding: 24px 16px 40px;
+  }
+  .wrap { max-width: 560px; margin: auto; }
+  h1 { font-size: 25px; margin: 0 0 8px; }
+  .sub { color: #aaa; font-size: 14px; margin-bottom: 24px; }
+  .card {
+    background: #1b1b1b;
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .title {
+    font-weight: 700;
+    font-size: 17px;
+    margin-bottom: 13px;
+  }
+  .people {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  input[type="number"] {
+    width: 100%;
+    max-width: 180px;
+    padding: 13px;
+    border: 1px solid #444;
+    border-radius: 10px;
+    background: #111;
+    color: #fff;
+    font-size: 17px;
+  }
+  .option-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  label.option {
+    display: block;
+    cursor: pointer;
+  }
+  label.option input { display: none; }
+  .option-box {
+    border: 1px solid #444;
+    border-radius: 12px;
+    padding: 15px 8px;
+    text-align: center;
+    background: #151515;
+    transition: .15s;
+  }
+  label.option input:checked + .option-box {
+    border-color: #fff;
+    background: #292929;
+  }
+  .name { font-weight: 700; margin-bottom: 6px; }
+  .price { color: #aaa; font-size: 12px; }
+  .notice {
+    color: #aaa;
+    font-size: 12px;
+    margin-top: 11px;
+  }
+  .result {
+    background: #eee;
+    color: #111;
+    border-radius: 16px;
+    padding: 22px 18px;
+    margin-top: 18px;
+  }
+  .result-label { font-size: 13px; color: #555; }
+  .total { font-size: 32px; font-weight: 800; margin: 5px 0 16px; }
+  .detail {
+    border-top: 1px solid #ccc;
+    padding-top: 12px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #333;
+  }
+  button {
+    width: 100%;
+    border: 0;
+    border-radius: 10px;
+    padding: 13px;
+    margin-top: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #111;
+    color: #fff;
+  }
+  button:active { transform: scale(.99); }
+  .warning {
+    color: #b00020;
+    font-size: 13px;
+    margin-top: 10px;
+  }
+  @media (max-width: 430px) {
+    body { padding: 18px 12px 30px; }
+    .option-grid { gap: 7px; }
+    .option-box { padding: 13px 5px; }
+    .price { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>커미션 가격 계산기</h1>
+  <div class="sub">구도와 퀄리티를 선택하면 예상 금액을 계산합니다.</div>
+
+  <div class="card">
+    <div class="title">인원수</div>
+    <div class="people">
+      <input id="people" type="number" min="1" step="1" value="1" inputmode="numeric">
+      <span>명</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">구도 <span style="font-size:12px;color:#999;font-weight:400;">(1개 선택)</span></div>
+    <div class="option-grid">
+      <label class="option">
+        <input type="radio" name="composition" value="head">
+        <div class="option-box"><div class="name">두상</div><div class="price">+2,000원</div></div>
+      </label>
+      <label class="option">
+        <input type="radio" name="composition" value="bust">
+        <div class="option-box"><div class="name">흉상</div><div class="price">+5,000원</div></div>
+      </label>
+      <label class="option">
+        <input type="radio" name="composition" value="full">
+        <div class="option-box"><div class="name">전신</div><div class="price">+8,000원</div></div>
+      </label>
+    </div>
+    <div class="notice">※ 두상은 단색부터 가능합니다.</div>
+  </div>
+
+  <div class="card">
+    <div class="title">퀄리티 <span style="font-size:12px;color:#999;font-weight:400;">(1개 선택)</span></div>
+    <div class="option-grid">
+      <label class="option">
+        <input type="radio" name="quality" value="sketch">
+        <div class="option-box"><div class="name">낙서</div><div class="price">추가금 없음</div></div>
+      </label>
+      <label class="option">
+        <input type="radio" name="quality" value="flat">
+        <div class="option-box"><div class="name">단색</div><div class="price">+3,000원</div></div>
+      </label>
+      <label class="option">
+        <input type="radio" name="quality" value="color">
+        <div class="option-box"><div class="name">풀채색</div><div class="price">+12,000원</div></div>
+      </label>
+    </div>
+  </div>
+
+  <div class="result">
+    <div class="result-label">예상 금액</div>
+    <div class="total" id="total">선택해주세요</div>
+    <div class="detail" id="detail">구도와 퀄리티를 선택하면 계산 내역이 표시됩니다.</div>
+    <div class="warning" id="warning"></div>
+    <button id="copy">계산 결과 복사</button>
+  </div>
+</div>
+
+<script>
+const people = document.getElementById('people');
+const total = document.getElementById('total');
+const detail = document.getElementById('detail');
+const warning = document.getElementById('warning');
+const copyBtn = document.getElementById('copy');
+
+const money = n => n.toLocaleString('ko-KR') + '원';
+
+function selected(name) {
+  return document.querySelector(`input[name="${name}"]:checked`)?.value;
+}
+
+function calculate() {
+  // 입력 중에는 빈칸을 허용해 숫자를 자유롭게 수정할 수 있게 함
+  if (people.value === '') {
+    total.textContent = '인원수를 입력해주세요';
+    detail.textContent = '인원수를 입력한 뒤 구도와 퀄리티를 선택해주세요.';
+    warning.textContent = '';
+    return;
+  }
+
+  const n = parseInt(people.value, 10);
+  if (!Number.isInteger(n) || n < 1) {
+    total.textContent = '1명 이상 입력해주세요';
+    detail.textContent = '';
+    warning.textContent = '';
+    return;
+  }
+
+  const comp = selected('composition');
+  const quality = selected('quality');
+
+  warning.textContent = '';
+
+  if (!comp || !quality) {
+    total.textContent = '선택해주세요';
+    detail.textContent = '구도와 퀄리티를 선택하면 계산 내역이 표시됩니다.';
+    return;
+  }
+
+  if (comp === 'head' && quality === 'sketch') {
+    warning.textContent = '두상은 단색부터 가능합니다.';
+    total.textContent = '선택 오류';
+    detail.textContent = '두상 + 낙서는 주문할 수 없습니다.';
+    return;
+  }
+
+  let compPrice = 0, compText = '';
+  if (comp === 'head') {
+    compPrice = 2000 * n;
+    compText = `두상 2,000원 × ${n}명 = ${money(compPrice)}`;
+  } else if (comp === 'bust') {
+    compPrice = 5000 * n;
+    compText = `흉상 5,000원 × ${n}명 = ${money(compPrice)}`;
+  } else {
+    compPrice = 8000 * n;
+    compText = `전신 8,000원 × ${n}명 = ${money(compPrice)}`;
+  }
+
+  let qualityPrice = 0, qualityText = '';
+  if (quality === 'sketch') {
+    qualityText = '낙서 추가금 0원';
+  } else if (quality === 'flat') {
+    qualityPrice = 3000 * n;
+    qualityText = `단색 3,000원 × ${n}명 = ${money(qualityPrice)}`;
+  } else {
+    qualityPrice = 12000 * n;
+    qualityText = `풀채색 12,000원 × ${n}명 = ${money(qualityPrice)}`;
+  }
+
+  const sum = compPrice + qualityPrice;
+  total.textContent = money(sum);
+  detail.innerHTML = `${compText}<br>${qualityText}<br><strong>합계 ${money(sum)}</strong>`;
+}
+
+document.querySelectorAll('input').forEach(el => el.addEventListener('change', calculate));
+people.addEventListener('input', calculate);
+
+people.addEventListener('blur', () => {
+  if (people.value === '' || !Number.isInteger(parseInt(people.value, 10)) || parseInt(people.value, 10) < 1) {
+    people.value = 1;
+    calculate();
+  }
+});
+
+copyBtn.addEventListener('click', async () => {
+  const text = `커미션 예상 금액: ${total.textContent}\n${detail.innerText}`;
+  try {
+    await navigator.clipboard.writeText(text);
+    copyBtn.textContent = '복사 완료!';
+    setTimeout(() => copyBtn.textContent = '계산 결과 복사', 1300);
+  } catch {
+    alert(text);
+  }
+});
+
+calculate();
+</script>
+
+<script>
+/* 기본적인 코드 보호 기능
+   - 우클릭 메뉴 차단
+   - 주요 소스 보기/개발자도구 단축키 차단
+   ※ HTML/CSS/JS는 브라우저에 전달되므로 완전한 보호는 불가능합니다.
+*/
+document.addEventListener('contextmenu', e => e.preventDefault());
+
+document.addEventListener('keydown', e => {
+  const key = e.key.toLowerCase();
+
+  // F12
+  if (e.key === 'F12') {
+    e.preventDefault();
+    return;
+  }
+
+  // Ctrl+U (소스 보기)
+  if (e.ctrlKey && key === 'u') {
+    e.preventDefault();
+    return;
+  }
+
+  // Ctrl+Shift+I / Ctrl+Shift+J (개발자 도구)
+  if (e.ctrlKey && e.shiftKey && (key === 'i' || key === 'j')) {
+    e.preventDefault();
+    return;
+  }
+
+  // Ctrl+Shift+C (요소 검사)
+  if (e.ctrlKey && e.shiftKey && key === 'c') {
+    e.preventDefault();
+    return;
+  }
+});
+</script>
+
+</body>
+</html>
